@@ -21,7 +21,8 @@ $configs = array(
         'https://gl.ali213.net/html/2020-3/420217.html'
     ),
     'content_url_regexes' => array(
-        "https://gl.ali213.net/html/2020-3/420217_\d+.html"
+        "https://gl.ali213.net/html/2020-3/420217_\d+.html",
+        'https://gl.ali213.net/html/2020-3/420217.html'
     ),
     'db_config' => array(
         'host'  => '127.0.0.1',

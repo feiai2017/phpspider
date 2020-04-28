@@ -8,3 +8,4 @@ client.php
 *.bak.php
 
 
+/log/dongsen.log
