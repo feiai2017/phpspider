@@ -17,6 +17,8 @@ $configs = array(
     'domains' => array(
         'gl.ali213.net',
     ),
+    'max_try' => 10,
+    'interval' => 1000,
     'scan_urls' => array(
         'https://gl.ali213.net/html/2020-3/420977.html'
     ),
@@ -78,7 +80,8 @@ $spider->on_extract_page = function($page, $data){
 
     $img = selector::select($data[1], '//span/span/img' );
 
-    $name = selector::select($data[0], '//span/strong' );
+    $name = selector::select($data[0], '//span/strong/text()' );
+    $name = str_replace('　', '', $name);
 
     $pathinfo = pathinfo($img);
     $fileext = $pathinfo['extension'];
