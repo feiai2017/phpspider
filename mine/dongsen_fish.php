@@ -18,11 +18,23 @@ $configs = array(
         'gl.ali213.net',
     ),
     'scan_urls' => array(
-        'https://gl.ali213.net/html/2020-3/420217.html'
+        'https://gl.ali213.net/html/2020-3/420217.html',
+        'https://gl.ali213.net/html/2020-3/420467.html',
+        'https://gl.ali213.net/html/2020-3/420427.html',
+        'https://gl.ali213.net/html/2020-3/420449.html',
+        'https://gl.ali213.net/html/2020-3/420399.html',
     ),
     'content_url_regexes' => array(
         "https://gl.ali213.net/html/2020-3/420217_\d+.html",
-        'https://gl.ali213.net/html/2020-3/420217.html'
+        'https://gl.ali213.net/html/2020-3/420467_\d+.html',
+        'https://gl.ali213.net/html/2020-3/420427_\d+.html',
+        'https://gl.ali213.net/html/2020-3/420449_\d+.html',
+        'https://gl.ali213.net/html/2020-3/420399_\d+.html',
+        'https://gl.ali213.net/html/2020-3/420217.html',
+        'https://gl.ali213.net/html/2020-3/420467.html',
+        'https://gl.ali213.net/html/2020-3/420427.html',
+        'https://gl.ali213.net/html/2020-3/420449.html',
+        'https://gl.ali213.net/html/2020-3/420399.html',
     ),
     'db_config' => array(
         'host'  => '127.0.0.1',
@@ -77,9 +89,16 @@ $spider->on_extract_page = function($page, $data){
 
     log::debug(json_encode($data, JSON_UNESCAPED_UNICODE));
 
+    log::debug('array_number: ' . count($data));
+
+    if (count($data) != 13) {
+        array_splice($data, 0, 2);
+    }
+
     $img = selector::select($data[1], '//span/span/img' );
 
-    $name = selector::select($data[0], '//span/strong' );
+    $name = selector::select($data[0], '//span/strong/text()' );
+    $name = str_replace('　', '', $name);
 
     $pathinfo = pathinfo($img);
     $fileext = $pathinfo['extension'];
@@ -104,7 +123,6 @@ $spider->on_extract_page = function($page, $data){
     $sql = "Select Count(*) As `count` From `fish` Where `name`='{$arr['name']}'";
     $row = db::get_one($sql);
 
-    log::debug('row' . json_encode($row, JSON_UNESCAPED_UNICODE));
     if (!$row['count'])
     {
         db::insert("fish", $arr);
