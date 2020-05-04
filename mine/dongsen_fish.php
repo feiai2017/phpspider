@@ -114,8 +114,8 @@ $spider->on_extract_page = function($page, $data){
     $arr['location'] = str_replace('　', '', $data[5]);
     $arr['size'] = str_replace('　', '', $data[6]);
     $arr['model'] = str_replace('　', '', $data[7]);
-    $arr['north_mouth'] = str_replace('　', '', $data[8]);
-    $arr['south_mouth'] = str_replace('　', '', $data[9]);
+    $arr['north_month'] = str_replace('　', '', $data[8]);
+    $arr['south_month'] = str_replace('　', '', $data[9]);
     $arr['time'] = str_replace('　', '', $data[10]);
     $arr['money'] = str_replace('　', '', $data[11]);
     log::debug(json_encode($arr, JSON_UNESCAPED_UNICODE));
