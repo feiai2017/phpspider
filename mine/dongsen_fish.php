@@ -5,6 +5,7 @@ use phpspider\core\phpspider;
 use phpspider\core\log;
 use phpspider\core\selector;
 use phpspider\core\db;
+use phpspider\core\Dongsen;
 
 /* Do NOT delete this comment */
 /* 不要删除这段注释 */
@@ -91,7 +92,7 @@ $spider->on_extract_page = function($page, $data){
 
     log::debug('array_number: ' . count($data));
 
-    if (count($data) != 13) {
+    if (count($data) == 16 || count($data) == 22) {
         array_splice($data, 0, 2);
     }
 
@@ -107,17 +108,17 @@ $spider->on_extract_page = function($page, $data){
     $filepath = "../images/fish/{$filename}";
     exec("wget -q {$img} -O {$filepath}");
 
-    $arr['image'] = str_replace('　', '', $filepath);
-    $arr['name'] = str_replace('　', '', $data[2]);
-    $arr['english_name'] = str_replace('　', '', $data[3]);
-    $arr['Japanese_name'] = str_replace('　', '', $data[4]);
-    $arr['location'] = str_replace('　', '', $data[5]);
-    $arr['size'] = str_replace('　', '', $data[6]);
-    $arr['model'] = str_replace('　', '', $data[7]);
-    $arr['north_month'] = str_replace('　', '', $data[8]);
-    $arr['south_month'] = str_replace('　', '', $data[9]);
-    $arr['time'] = str_replace('　', '', $data[10]);
-    $arr['money'] = str_replace('　', '', $data[11]);
+    $arr['image'] = Dongsen::format($filepath);
+    $arr['name'] = Dongsen::format($data[2]);
+    $arr['english_name'] = Dongsen::format($data[3]);
+    $arr['Japanese_name'] = Dongsen::format($data[4]);
+    $arr['location'] = Dongsen::format($data[5]);
+    $arr['size'] = Dongsen::format($data[6]);
+    $arr['model'] = Dongsen::format($data[7]);
+    $arr['north_month'] = Dongsen::format($data[8]);
+    $arr['south_month'] = Dongsen::format($data[9]);
+    $arr['time'] = Dongsen::format($data[10]);
+    $arr['money'] = Dongsen::format($data[11]);
     log::debug(json_encode($arr, JSON_UNESCAPED_UNICODE));
 
     $sql = "Select Count(*) As `count` From `fish` Where `name`='{$arr['name']}'";
@@ -130,6 +131,5 @@ $spider->on_extract_page = function($page, $data){
 
     return $arr;
 };
-
 
 $spider->start();

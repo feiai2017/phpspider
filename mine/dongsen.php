@@ -11,6 +11,7 @@ use phpspider\core\db;
 
 $configs = array(
     'name' => '动森',
+    'tasknum' => 8,
     'log_show' => false,
     'log_file' => '../log/dongsen.log',
     'domains' => array(
@@ -28,6 +29,14 @@ $configs = array(
         'user'  => 'homestead',
         'pass'  => 'secret',
         'name'  => 'dongsen',
+    ),
+    'queue_config' => array(
+        'host' => '127.0.0.1',
+        'port' => 6379,
+        'pass' => '',
+        'db' => 5,
+        'prefix' => 'phpspider',
+        'timeout' => 30
     ),
     //'list_url_regexes' => array(
     //    "http://www.qiushibaike.com/8hr/page/\d+\?s=\d+"
@@ -75,8 +84,8 @@ $spider->on_extract_page = function($page, $data){
         $fileext = $pathinfo['extension'];
         $filename = $tmp[1] . "." . $fileext;
 
-        $filepath = "../images/{$filename}";
-        //exec("wget -q {$img} -O {$filepath}");
+        $filepath = "../images/animal/{$filename}";
+        exec("wget -q {$img} -O {$filepath}");
 
 
         $arr['image'] = $filepath;
