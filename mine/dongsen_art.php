@@ -21,10 +21,10 @@ $configs = array(
     'max_try' => 10,
     'interval' => 1000,
     'scan_urls' => array(
-        'https://wiki.biligame.com/dongsen/'
+        'https://wiki.biligame.com/dongsen/艺术品图鉴'
     ),
     'content_url_regexes' => array(
-        "https://wiki.biligame.com/dongsen/*"
+        "https://wiki.biligame.com/dongsen/艺术品图鉴"
     ),
     'db_config' => array(
         'host'  => '127.0.0.1',
@@ -48,7 +48,7 @@ $configs = array(
         array(
             // 抽取内容页的文章内容
             'name' => "animal",
-            'selector' => "//table[contains(@class, 'wikitable')]/tbody/tr",
+            'selector' => "//table[contains(@class, 'wikitable')]/tbody/tr/td",
             'required' => true,
             'repeated' => true
         ),
@@ -72,12 +72,22 @@ $spider->on_start = function($phpspider)
     db::_init();
 };
 
+$spider->on_content_page = function ($page, $content, $phpspider) {
+    $urls = selector::select($content, "//table[contains(@class, 'wikitable')]/tbody/tr/td/div[contains(@class, 'center')]/div[contains(@class, 'floatnone')]/a/@href");
+    foreach ($urls as $key => $url) {
+        log::debug('url: ' . $url);
+        $phpspider->add_url($url);
+    }
+
+    return true;
+
+};
+
 $spider->on_extract_page = function($page, $data){
 
     $arr = array();
     $data = $data['animal'];
-
-    log::debug(json_encode($data, JSON_UNESCAPED_UNICODE));
+    log::debug('data: ' . json_encode($data, JSON_UNESCAPED_UNICODE));
 
     return $arr;
 };

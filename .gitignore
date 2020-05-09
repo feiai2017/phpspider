@@ -10,3 +10,5 @@ client.php
 
 /log/dongsen.log
 /test.php
+/index.php
+/mine/dump.rdb
