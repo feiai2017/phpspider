@@ -23,9 +23,6 @@ $configs = array(
     'scan_urls' => array(
         'https://wiki.biligame.com/dongsen/艺术品图鉴'
     ),
-    'content_url_regexes' => array(
-        "https://wiki.biligame.com/dongsen/艺术品图鉴"
-    ),
     'db_config' => array(
         'host'  => '127.0.0.1',
         'port'  => 33060,
@@ -48,7 +45,7 @@ $configs = array(
         array(
             // 抽取内容页的文章内容
             'name' => "animal",
-            'selector' => "//table[contains(@class, 'wikitable')]/tbody/tr/td",
+            'selector' => "//table[contains(@class, 'wikitable')]/tbody/tr",
             'required' => true,
             'repeated' => true
         ),
@@ -74,12 +71,15 @@ $spider->on_start = function($phpspider)
 
 $spider->on_content_page = function ($page, $content, $phpspider) {
     $urls = selector::select($content, "//table[contains(@class, 'wikitable')]/tbody/tr/td/div[contains(@class, 'center')]/div[contains(@class, 'floatnone')]/a/@href");
-    foreach ($urls as $key => $url) {
-        log::debug('url: ' . $url);
-        $phpspider->add_url($url);
+    if (is_array($urls)) {
+        foreach ($urls as $url) {
+            $url = "https://wiki.biligame.com" . $url;
+            log::debug('url: ' . $url);
+            $phpspider->add_url($url);
+        }
     }
 
-    return true;
+    return false;
 
 };
 
@@ -87,7 +87,57 @@ $spider->on_extract_page = function($page, $data){
 
     $arr = array();
     $data = $data['animal'];
-    log::debug('data: ' . json_encode($data, JSON_UNESCAPED_UNICODE));
+    if (count($data) > 30) {
+        return false;
+    }
+
+    $name = selector::select($data[0], '//th/text()');
+    $name = str_replace(PHP_EOL, '', $name);
+
+    $img = selector::select($data[1], '//td/div/div/img');
+    $pathinfo = pathinfo($img);
+    $fileext = $pathinfo['extension'];
+    $filename = $name . "." . $fileext;
+
+    $filepath = "../images/art/{$filename}";
+    exec("wget -q {$img} -O {$filepath}");
+
+    $img_arr = selector::select($data[10], '//td/div/p/a/img');
+    log::debug('img_arr: ' . $img_arr);
+    log::debug('img_arr: ' . json_encode($img_arr, JSON_UNESCAPED_UNICODE));
+    if (is_array($img_arr)) {
+        foreach ($img_arr as $key => $val) {
+            $pathinfo = pathinfo($val);
+            $fileext = $pathinfo['extension'];
+            $filename = $name . $key . "." . $fileext;
+
+            $filepath_img = "../images/art/{$filename}";
+            exec("wget -q {$val} -O {$filepath_img}");
+
+            $img_arr[$key] = $filepath_img;
+        }
+    }
+
+    $arr['name'] = $name;
+    $arr['image'] = $filepath;
+    $arr['is_true'] = selector::select($data[2], '//td/text()');
+    $arr['money'] = selector::select($data[3], '//td/text()');
+    $arr['size'] = selector::select($data[5], '//td/text()');
+    $arr['type'] = selector::select($data[6], '//td/text()');
+    $arr['information'] = selector::select($data[7], '//td');
+    $arr['description'] = selector::select($data[8], '//td');
+    $arr['function'] = selector::select($data[9], '//td');
+    $arr['big_image'] = json_encode($img_arr, JSON_UNESCAPED_UNICODE);
+
+    log::debug('arr: ' . json_encode($arr, JSON_UNESCAPED_UNICODE));
+
+    $sql = "Select Count(*) As `count` From `art` Where `name`='{$arr['name']}' and `is_true` = '{$arr['is_true']}'";
+    $row = db::get_one($sql);
+
+    if (!$row['count'])
+    {
+        db::insert("art", $arr);
+    }
 
     return $arr;
 };
