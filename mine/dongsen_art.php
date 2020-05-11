@@ -100,7 +100,7 @@ $spider->on_extract_page = function($page, $data){
     $filename = $name . "." . $fileext;
 
     $filepath = "../images/art/{$filename}";
-    exec("wget -q {$img} -O {$filepath}");
+    //exec("wget -q {$img} -O {$filepath}");
 
     $img_arr = selector::select($data[10], '//td/div/p/a/img');
     log::debug('img_arr: ' . $img_arr);
@@ -112,7 +112,7 @@ $spider->on_extract_page = function($page, $data){
             $filename = $name . $key . "." . $fileext;
 
             $filepath_img = "../images/art/{$filename}";
-            exec("wget -q {$val} -O {$filepath_img}");
+            //exec("wget -q {$val} -O {$filepath_img}");
 
             $img_arr[$key] = $filepath_img;
         }
@@ -120,13 +120,13 @@ $spider->on_extract_page = function($page, $data){
 
     $arr['name'] = $name;
     $arr['image'] = $filepath;
-    $arr['is_true'] = selector::select($data[2], '//td/text()');
-    $arr['money'] = selector::select($data[3], '//td/text()');
-    $arr['size'] = selector::select($data[5], '//td/text()');
-    $arr['type'] = selector::select($data[6], '//td/text()');
-    $arr['information'] = selector::select($data[7], '//td');
-    $arr['description'] = selector::select($data[8], '//td');
-    $arr['function'] = selector::select($data[9], '//td');
+    $arr['is_true'] = str_replace(PHP_EOL, '', selector::select($data[2], '//td/text()'));
+    $arr['money'] = str_replace(PHP_EOL, '', selector::select($data[3], '//td/text()'));
+    $arr['size'] = str_replace(PHP_EOL, '', selector::select($data[5], '//td/text()'));
+    $arr['type'] = str_replace(PHP_EOL, '', selector::select($data[6], '//td/text()'));
+    $arr['information'] = str_replace(PHP_EOL, '', selector::select($data[7], '//td'));
+    $arr['description'] = str_replace(PHP_EOL, '', selector::select($data[8], '//td'));
+    $arr['function'] = str_replace(PHP_EOL, '', selector::select($data[9], '//td'));
     $arr['big_image'] = json_encode($img_arr, JSON_UNESCAPED_UNICODE);
 
     log::debug('arr: ' . json_encode($arr, JSON_UNESCAPED_UNICODE));
