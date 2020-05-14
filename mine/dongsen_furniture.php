@@ -21,10 +21,10 @@ $configs = array(
     'max_try' => 10,
     'interval' => 1000,
     'scan_urls' => array(
-        'https://wiki.biligame.com/dongsen/化石图鉴'
+        'https://wiki.biligame.com/dongsen/家具图鉴'
     ),
     'content_url_regexes' => array(
-        'https://wiki.biligame.com/dongsen/化石图鉴'
+        'https://wiki.biligame.com/dongsen/家具图鉴'
     ),
     'db_config' => array(
         'host'  => '127.0.0.1',
@@ -48,7 +48,7 @@ $configs = array(
         array(
             // 抽取内容页的文章内容
             'name' => "animal",
-            'selector' => "//table[contains(@id, 'CardSelectTr')]/tbody/tr",
+            'selector' => "//table[contains(@class, 'wikitable')]/tbody/tr",
             'required' => true,
             'repeated' => true
         ),
@@ -76,7 +76,8 @@ $spider->on_extract_page = function($page, $data){
 
     $res = array();
     $data = $data['animal'];
-    log::debug('data: ' . json_encode($data, JSON_UNESCAPED_UNICODE));
+    //log::debug('data: ' . json_encode($data, JSON_UNESCAPED_UNICODE));
+    log::debug('number: ' . count($data));
 
     foreach ($data as $key => $one) {
         if ($key == 0)
@@ -86,8 +87,8 @@ $spider->on_extract_page = function($page, $data){
 
         $tmp = selector::select($one, '//td');
 
-        $img = selector::select($tmp[0], '//div/div/a/img');
-        $name = selector::select($tmp[0], '//a/text()');
+        $img = selector::select($tmp[0], '//div/div/img');
+        $name = str_replace(PHP_EOL, '', $tmp[2]);
 
         $pathinfo = pathinfo($img);
         $fileext = $pathinfo['extension'];
@@ -98,10 +99,13 @@ $spider->on_extract_page = function($page, $data){
 
         $arr['image'] = $filepath;
         $arr['name'] = $name;
-        $arr['english_name'] = str_replace(PHP_EOL, '', $tmp[1]);
-        $arr['japanese_name'] = str_replace(PHP_EOL, '', $tmp[2]);
-        $arr['money'] = str_replace(PHP_EOL, '', $tmp[3]);
-        $arr['description'] = str_replace(PHP_EOL, '', $tmp[4]);
+        $arr['type'] = str_replace(PHP_EOL, '', $tmp[1]);
+        $arr['money_original'] = str_replace(PHP_EOL, '', $tmp[3]);
+        $arr['money_shop'] = str_replace(PHP_EOL, '', $tmp[4]);
+        $arr['money_box'] = str_replace(PHP_EOL, '', $tmp[5]);
+        $arr['buy_type'] = str_replace(PHP_EOL, '', $tmp[5]);
+        $arr['small_type'] = str_replace(PHP_EOL, '', $tmp[6]);
+        $arr['size'] = str_replace(PHP_EOL, '', $tmp[7]);
 
         $sql = "Select Count(*) As `count` From `furniture` Where `name`='{$arr['name']}'";
         $row = db::get_one($sql);
@@ -110,7 +114,7 @@ $spider->on_extract_page = function($page, $data){
             db::insert("furniture", $arr);
         }
 
-        log::debug('arr: ' . json_encode($arr, JSON_UNESCAPED_UNICODE));
+        //log::debug('arr: ' . json_encode($arr, JSON_UNESCAPED_UNICODE));
         $res[] = $arr;
     }
     return $res;
