@@ -80,7 +80,7 @@ $spider->on_extract_page = function($page, $data){
     log::debug('number: ' . count($data));
 
     foreach ($data as $key => $one) {
-        if ($key == 0)
+        if ($key == 0 || $key ==1 || $key == 2)
             continue;
 
         $arr = array();
@@ -92,7 +92,7 @@ $spider->on_extract_page = function($page, $data){
 
         $pathinfo = pathinfo($img);
         $fileext = $pathinfo['extension'];
-        $filename = $name . "." . $fileext;
+        $filename = $name . $key . "." . $fileext;
 
         $filepath = "../images/furniture/{$filename}";
         exec("wget -q {$img} -O {$filepath}");
@@ -103,18 +103,18 @@ $spider->on_extract_page = function($page, $data){
         $arr['money_original'] = str_replace(PHP_EOL, '', $tmp[3]);
         $arr['money_shop'] = str_replace(PHP_EOL, '', $tmp[4]);
         $arr['money_box'] = str_replace(PHP_EOL, '', $tmp[5]);
-        $arr['buy_type'] = str_replace(PHP_EOL, '', $tmp[5]);
-        $arr['small_type'] = str_replace(PHP_EOL, '', $tmp[6]);
-        $arr['size'] = str_replace(PHP_EOL, '', $tmp[7]);
+        $arr['buy_type'] = str_replace(PHP_EOL, '', $tmp[6]);
+        $arr['small_type'] = str_replace(PHP_EOL, '', $tmp[7]);
+        $arr['size'] = str_replace(PHP_EOL, '', $tmp[8]);
 
-        $sql = "Select Count(*) As `count` From `furniture` Where `name`='{$arr['name']}'";
+        $sql = "Select Count(*) As `count` From `furniture` Where `image`='{$arr['image']}'";
         $row = db::get_one($sql);
         if (!$row['count'])
         {
             db::insert("furniture", $arr);
         }
 
-        //log::debug('arr: ' . json_encode($arr, JSON_UNESCAPED_UNICODE));
+        log::debug('arr: ' . json_encode($arr, JSON_UNESCAPED_UNICODE));
         $res[] = $arr;
     }
     return $res;
